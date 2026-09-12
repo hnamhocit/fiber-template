@@ -1,0 +1,29 @@
+.ftpl/
+bin/
+docs/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Binaries & Testing
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+coverage.html
+
+# IDEs & OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Go workspace
+go.work
+go.work.sum
