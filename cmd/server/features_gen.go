@@ -3,12 +3,10 @@ package main
 
 import (
 	"github.com/hnamhocit/fiber-template/internal/server"
-	"github.com/hnamhocit/fiber-template/internal/features/users"
 )
 
 // features wires all registered features with their dependencies.
 func features(deps server.Deps) []server.Feature {
 	return []server.Feature{
-		users.NewModule(deps),
 	}
 }
