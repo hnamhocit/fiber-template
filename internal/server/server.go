@@ -5,12 +5,14 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/adaptor"
 	"github.com/gofiber/fiber/v3/middleware/helmet"
 	"github.com/gofiber/fiber/v3/middleware/limiter"
 	"github.com/gofiber/fiber/v3/middleware/recover"
 	"github.com/gofiber/fiber/v3/middleware/requestid"
 	"github.com/gofiber/fiber/v3/middleware/static"
 	"github.com/google/uuid"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/hnamhocit/fiber-template/internal/healthcheck"
 	"github.com/hnamhocit/fiber-template/internal/httpx"
@@ -58,6 +60,10 @@ func New(deps Deps, hc *healthcheck.Registry, features ...Feature) *fiber.App {
 	}))
 	app.Use(helmet.New(helmet.Config{
 		CrossOriginEmbedderPolicy: "unsafe-none",
+		// Security headers (C)
+		PermissionPolicy:      "camera=(), microphone=(), geolocation=()",
+		ReferrerPolicy:        "strict-origin-when-cross-origin",
+		ContentSecurityPolicy: "default-src 'self'; script-src 'self' 'unsafe-inline' cdn.redoc.ly fonts.googleapis.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src fonts.gstatic.com; img-src 'self' data:;",
 	}))
 	app.Use(corsMiddleware(cfg))
 
@@ -106,6 +112,9 @@ func New(deps Deps, hc *healthcheck.Registry, features ...Feature) *fiber.App {
 		return err
 	})
 
+	// Metrics endpoint (Prometheus format)
+	app.Get("/metrics", adaptor.HTTPHandler(promhttp.Handler()))
+
 	// API docs + health probes + features
 	app.Use("/swagger", static.New("./docs"))
 	app.Get("/docs", docsHandler)
@@ -118,8 +127,6 @@ func New(deps Deps, hc *healthcheck.Registry, features ...Feature) *fiber.App {
 
 	return app
 }
-
-// docsHandler + const docsHTML: GIỮ NGUYÊN như bản trước (Redoc three-panel).
 
 func docsHandler(c fiber.Ctx) error {
 	c.Set("Content-Type", "text/html")
